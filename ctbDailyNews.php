@@ -55,10 +55,8 @@ function getBTCD(): string
     $connectionError = true;
     $url = 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest';
     $parameters = [];
-    $headers = [
-        'Accept: application/json',
-        'X-CMC_PRO_API_KEY: ca17e44e-014c-4af7-82c5-efcdb4df10e2'
-    ];
+    $headers = ['Accept: application/json', 'X-CMC_PRO_API_KEY: ' . COINMARKETCAP_APIKEY];
+    echo var_export($headers, true);
     $qs = http_build_query($parameters); // query string encode the parameters
     $request = "$url?$qs"; // create the request URL $request = "{$url}?{$qs}";
     for ($i = 1; $i <= 3; $i++) {
