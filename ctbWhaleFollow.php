@@ -1,5 +1,5 @@
 <?php
-echo "<pre>" . "@Crypto Tracker Bot (ctbWhaleFollow) " . "<br>" . time() . "<br>----------<br>";
+echo "<pre>" . "@ctbWhaleFollow (" . time()  . "): <br>";
 require_once 'sql.php'; // Подключение к MySQL, функции.
 // ***************************************************************
 // ********** Блок запроса новых транзакциях в блокчейн **********

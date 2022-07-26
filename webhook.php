@@ -6,11 +6,6 @@ require_once 'binance.php'; // Функции Binance API.
 $jsonData = file_get_contents('php://input');
 $inputMessage = json_decode($jsonData, TRUE);
 $messageType = detectMessageType($inputMessage); // Распознаем тип сообщения
-$priceArray = getAllCurrentPrice(); // Запрашиваем в массив все текущие цены с Binance
-if (!$priceArray) {
-    sendMessage($chat_id, "\xE2\x81\x89 Проблема с получением всех ценовых пар Binance.");
-    exit;
-}
 
 // sendServiceMessage(gettype($inputMessage));
 // sendServiceMessage(var_export($inputMessage, true) . "\n\n" . $messageType);
@@ -26,6 +21,13 @@ $from_first_name = $inputMessage[$jdColumnName]['from']['first_name'];
 $from_username = $inputMessage[$jdColumnName]['from']['username'];
 $from_language_code = $inputMessage[$jdColumnName]['from']['language_code'];
 $text = $inputMessage['message']['text'];
+
+$priceArray = getAllCurrentPrice(); // Запрашиваем в массив все текущие цены с Binance
+if (!$priceArray) {
+    sendMessage($chat_id, "\xE2\x81\x89 Проблема с получением всех ценовых пар Binance.");
+    exit;
+}
+
 saveUserAndMessage($inputMessage, $messageType);
 // *********************************************
 // ******* ОБРАБОТКА ПО ТИПУ СООБЩЕНИЙ *********

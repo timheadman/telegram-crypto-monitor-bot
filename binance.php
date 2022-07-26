@@ -6,8 +6,8 @@
 /**
  * Возвращает текущую цену конкретной пары.
  * https://stackoverflow.com/questions/65864645/how-to-use-binance-api-simple-get-price-by-ticker
- * @return float
  * @param string $symbol Любой символ из существующих, функция пробует составить пар математически из нескольких запросов.
+ * @return float
  */
 function getCurrentPrice(string $symbol): float
 {
@@ -29,8 +29,8 @@ function getCurrentPrice(string $symbol): float
  * Возвращает текущую цену конкретной существующей пары.
  * Вспомогательная функция к getCurrentPrice.
  * https://stackoverflow.com/questions/65864645/how-to-use-binance-api-simple-get-price-by-ticker
- * @return float
  * @param string $symbol Trade symbol (ex. "BTCUSDT")
+ * @return float
  */
 function getExistingPrice(string $symbol): float
 {
@@ -55,7 +55,7 @@ function getExistingPrice(string $symbol): float
         if ($i < 3) sleep(1);
     }
     if ($connectionError) {
-        sendServiceMessage("Binance API error (" . $urlBinanceAPI . "):\n" . error_get_last()["message"]);
+        sendServiceMessage("binance.php\n" . $urlBinanceAPI . "\n" . error_get_last()["message"]);
     }
     return $price;
 }
@@ -63,10 +63,10 @@ function getExistingPrice(string $symbol): float
 /**
  * Возвращает историческое значение конкретной пары по заданным условиям.
  * https://developers.binance.com/docs/binance-api/spot-detail/rest-api#klinecandlestick-data
- * @return float
  * @param string $symbol Trade symbol (ex. "BTCUSDT")
  * @param int $startTime UNIX time (0 - default)
  * @param int $level 1 - Open, 2 - High, 3 - Low, 4 - Close, 5 - Average (default)
+ * @return float
  */
 function getHistoryPrice(string $symbol, int $startTime = 0, int $level = 5): float
 {
@@ -112,7 +112,7 @@ function getHistoryPrice(string $symbol, int $startTime = 0, int $level = 5): fl
         if ($i < 3) sleep(1);
     }
     if ($connectionError) {
-        sendServiceMessage("Binance API error (" . $urlBinanceAPI . "):\n" . error_get_last()["message"]);
+        sendServiceMessage("binance.php\n" . $urlBinanceAPI . "\n" . error_get_last()["message"]);
         return false;
     } else {
         return $price;
@@ -128,18 +128,17 @@ function getAllCurrentPrice(): array
     $urlBinanceAPI = 'https://api.binance.com/api/v3/ticker/price';
     $arrData[] = 0;
     for ($i = 1; $i <= 3; $i++) {
+        echo $i;
         $postData = file_get_contents($urlBinanceAPI);
         if ($postData) {
             $arrData = json_decode($postData, true);
-            break;
+            return $arrData;
+        } elseif ($i == 3) {
+            sendServiceMessage("binance.php\n" . $urlBinanceAPI . "\n" . error_get_last()["message"]);
         }
         sleep(1);
     }
-    if (count($arrData) < 100) {
-        sendServiceMessage("Binance API error (" . $urlBinanceAPI . "):\n" . error_get_last()["message"]);
-        return array();
-    }
-    return $arrData;
+    return array();
 }
 
 /**

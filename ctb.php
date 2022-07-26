@@ -1,11 +1,15 @@
 <?php
 // https://omarov.net/@CryptoTrackerChannel/ctb.php
-echo "<pre>" . "@Crypto Tracker Bot " . "<br>" . time() . "<br>----------<br>";
+echo "<pre>" . "@Crypto Tracker Bot. <br>START: " . time() . "<br>--------------------<br>";
 require_once 'sql.php'; // Подключение к MySQL, функции.
 require_once 'telegram.php'; // Подключение к Telegramm, функции.
 require_once 'binance.php'; // Функции Binance API.
 
 $priceArray = getAllCurrentPrice(); // Запрашиваем в массив все текущие цены с Binance
+if (!$priceArray) {
+    sendServiceMessage("\xE2\x81\x89 Проблема с получением всех ценовых пар Binance.");
+    exit;
+}
 
 require_once 'ctbDailyNews.php'; // Блок ежедневная информации по рынку
 require_once 'ctbWhaleFollow.php'; // Блок слежения за BTC Whale
@@ -130,4 +134,4 @@ function setReload(int $key, int $reloadmultiplier): void
 
 // **************************************************
 setConfigData("ctbLastRunTS", time()); // Время последнего запуска в timesatmp );
-echo time();
+echo "<br>--------------------<br>END: " . time();
