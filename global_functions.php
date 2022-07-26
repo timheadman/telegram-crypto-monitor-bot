@@ -18,25 +18,6 @@ function getAlerts(int $chat_id): array
     }
 }
 
-function test(string $symbol): float
-{
-    global $priceArray;
-    $key = array_search($symbol, array_column($priceArray, 'symbol'));
-    if ($key) {
-        return roundPrice(floatval($priceArray[$key]['price']));
-    } else {
-        $symbol = strtoupper($symbol);
-        $symbolPieces = explode("/", $symbol);
-        if (count($symbolPieces) == 2) {
-            $key0 = array_search($symbolPieces[0] . "USDT", array_column($priceArray, 'symbol'));
-            $key1 = array_search($symbolPieces[1] . "USDT", array_column($priceArray, 'symbol'));
-            $price0 = floatval($priceArray[$key0]['price']);
-            $price1 = floatval($priceArray[$key1]['price']);
-            return roundPrice(floatval($price0 / $price1));
-        } else return false;
-    }
-}
-
 /**
  * Округляем цену по логике веса цены.
  * @param float $price

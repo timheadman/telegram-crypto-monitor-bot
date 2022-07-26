@@ -120,7 +120,6 @@ function getMyInfo($chat_id, $inputMessage): void
 
 function getAlertsTable(int $chat_id, $incomingCommand): void
 {
-    global $priceArray;
     $getTicket = $incomingCommand[1];
     //sendServiceMessage("getTicket:" . var_export($getTicket, True));
     if (count($incomingCommand) > 2) {
