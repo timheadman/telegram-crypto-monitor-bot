@@ -19,21 +19,14 @@ function getAlerts(int $chat_id): array
 }
 
 /**
- * Округляем цену по логике веса цены.
- * @param float $price
- * @return float
- */
-function roundPrice(float $price): float
-{
-    return round($price, ($price > 1) ? 2 : 8);
-}
-
-/**
- * конвертируем в строку округленую цену.
+ * Конвертирует цену в строку в зависимости от размера цены,
+ * Если цена более 1 то до 2 знаков после запятой,
+ * если менее 1 то до 8 знаков после запятой.
+ * Так же отбрасывает не имеющие значения 0, справа.
  * @param float $price
  * @return string
  */
 function printPrice(float $price): string
 {
-    return number_format($price, ($price > 1) ? 2 : 8);
+    return rtrim(number_format($price, ($price > 1) ? 2 : 8), "0");
 }
