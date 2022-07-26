@@ -65,7 +65,7 @@ function sendInlineKeyboard($chat_id, $message, $keyboard): mixed
  * @param $inputMessage
  * @return string
  */
-function detectMessageType(&$inputMessage): string
+function detectMessageType($inputMessage): string
 {
     $primaryKey = array_keys($inputMessage)[1];
     if ($primaryKey == 'message') {
@@ -106,7 +106,7 @@ function detectMessageType(&$inputMessage): string
 /**
  * Ищем команду и аргументы в тексте.
  * @param $text
- * @return array
+ * @return array in lower case
  */
 function parseCommand($text): array
 {

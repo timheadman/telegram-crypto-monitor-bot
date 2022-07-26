@@ -42,7 +42,7 @@ function getConfigData(string $key): int
  * @param string $key Ключ - должен совпадать с колонкой в таблице config.
  * @param int $value Значение.
  */
-function setConfigData(string $key, int $value)
+function setConfigData(string $key, int $value): void
 {
     global $pdo;
     $sql = "UPDATE config SET " . $key . " = " . $value . " WHERE id = 0";
@@ -56,7 +56,7 @@ function setConfigData(string $key, int $value)
     }
 }
 
-function saveUserAndMessage(&$inputMessage, $messageType)
+function saveUserAndMessage($inputMessage, $messageType): void
 {
     global $pdo;
     $primaryKey = array_keys($inputMessage)[1];

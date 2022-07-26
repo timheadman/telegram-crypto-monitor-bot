@@ -1,4 +1,5 @@
 <?php
+require_once 'global_functions.php'; // Глобальные функции.
 require_once 'sql.php'; // Подключение к MySQL, функции.
 require_once 'telegram.php'; // Подключение к Telegramm, функции.
 require_once 'binance.php'; // Функции Binance API.
@@ -21,12 +22,6 @@ $from_first_name = $inputMessage[$jdColumnName]['from']['first_name'];
 $from_username = $inputMessage[$jdColumnName]['from']['username'];
 $from_language_code = $inputMessage[$jdColumnName]['from']['language_code'];
 $text = $inputMessage['message']['text'];
-
-$priceArray = getAllCurrentPrice(); // Запрашиваем в массив все текущие цены с Binance
-if (!$priceArray) {
-    sendMessage($chat_id, "\xE2\x81\x89 Проблема с получением всех ценовых пар Binance.");
-    exit;
-}
 
 saveUserAndMessage($inputMessage, $messageType);
 // *********************************************
@@ -89,63 +84,45 @@ $pdo = null;
  * Отправить текстовое Telegram сообщение на указанный $chat_id, содержащее справочную информацию.
  * @param $chat_id
  */
-function getHelp($chat_id)
+function getHelp($chat_id): void
 {
     sendMessage(
         $chat_id,
         "Уведомления об изменении курса криптовалютных пар:\n" .
-            "/get - список уведомлений\n\n" .
-            "/add - добавить уведомление\n" .
-            "Пример: /add BTCUSDT 50000\n" .
-            "/upd - изменить уведомление\n" .
-            "Пример: /add 11 2.53 или /add 11 2.53 UP \n" .
-            "11 - первый аргумент, порядковый номер уведомления в списке\n" .
-            "2.53 - второй аргумент, новая цена срабатывания\n" .
-            "UP - третий аргумент, опционально, новое напрвление пересечения цены\n\n" .
-            "/del - удалить уведомления\n" .
-            "Пример: /del 0 1 2\n" .
-            "* 0 1 2 - Порядковые номера уведомлений в списке /get,\n" .
-            "/del all - удаление всех уведомлений.\n\n" .
-            "/help - расширенная справка"
+        "/get - список уведомлений\n\n" .
+        "/add - добавить уведомление\n" .
+        "Пример: /add BTCUSDT 50000\n" .
+        "/upd - изменить уведомление\n" .
+        "Пример: /add 11 2.53 или /add 11 2.53 UP \n" .
+        "11 - первый аргумент, порядковый номер уведомления в списке\n" .
+        "2.53 - второй аргумент, новая цена срабатывания\n" .
+        "UP - третий аргумент, опционально, новое напрвление пересечения цены\n\n" .
+        "/del - удалить уведомления\n" .
+        "Пример: /del 0 1 2\n" .
+        "* 0 1 2 - Порядковые номера уведомлений в списке /get,\n" .
+        "/del all - удаление всех уведомлений.\n\n" .
+        "/help - расширенная справка"
     );
 }
 
-function getMyInfo($chat_id, $inputMessage)
+function getMyInfo($chat_id, $inputMessage): void
 {
     sendMessage(
         $chat_id,
         "ID: " . $chat_id .
-            "\nFirst Name: " . $inputMessage['message']['from']['first_name'] .
-            "\nUser Name: " . $inputMessage['message']['from']['username'] .
-            "\nLanguage: " . $inputMessage['message']['from']['language_code'] .
-            "\nBot: " . (int)$inputMessage['message']['from']['is_bot'] .
-            "\nIncoming Message: " . $inputMessage['message']['text']
+        "\nFirst Name: " . $inputMessage['message']['from']['first_name'] .
+        "\nUser Name: " . $inputMessage['message']['from']['username'] .
+        "\nLanguage: " . $inputMessage['message']['from']['language_code'] .
+        "\nBot: " . (int)$inputMessage['message']['from']['is_bot'] .
+        "\nIncoming Message: " . $inputMessage['message']['text']
     );
 }
 
-/**
- * Получить уведомления из базы данных в виде массива.
- * @param int $chat_id
- * @return array
- */
-function getAlerts(int $chat_id): array
-{
-    global $pdo;
-    try { // Проверяем наличие записей для уведомлений
-        $sql = "SELECT * FROM alerts WHERE user_id=" . $chat_id . " ORDER BY symbol ASC, direction DESC";
-        $alertsData = $pdo->query($sql)->fetchAll(); // Выполнение запроса SELECT
-        //sendServiceMessage($sql . "\n" . var_export($alertsData, true));
-    } catch (PDOException $e) {
-        sendMessage($chat_id, "\xE2\x9A\xA0 SELECT error (webhook.php):\n" . $sql . "\n---\n" . $e->getMessage());
-        exit;
-    }
-    return $alertsData;
-}
-
-function getAlertsTable(int $chat_id, $incomingCommand)
+function getAlertsTable(int $chat_id, $incomingCommand): void
 {
     global $priceArray;
     $getTicket = $incomingCommand[1];
+    //sendServiceMessage("getTicket:" . var_export($getTicket, True));
     if (count($incomingCommand) > 2) {
         sendMessage($chat_id, "\xE2\x81\x89 Неверное количество аргументов (" . count($incomingCommand)
             . ").\n/get XXXX - список уведомлений по отношению к XXXX\n/help - расширенная справка");
@@ -157,26 +134,12 @@ function getAlertsTable(int $chat_id, $incomingCommand)
         sendMessage($chat_id, "Список уведомлений пуст.");
     else {
         $alertsTable = $getTicket ? strtoupper($getTicket) . "\n" : "";
-        $ticketLen = strlen($getTicket) * -1;
-        $countAlertsData = count($alertsData);
-        for ($i = 0; $i < $countAlertsData; $i++) {
-            if ($getTicket && $getTicket != strtolower(substr($alertsData[$i]['symbol'], $ticketLen))) {
+
+        for ($i = 0; $i < count($alertsData); $i++) {
+            if ($getTicket &&
+                $getTicket != strtolower(substr($alertsData[$i]['symbol'], strlen($getTicket) * -1)))
                 continue;
-            }
-            $key = array_search($alertsData[$i]['symbol'], array_column($priceArray, 'symbol'));
-            if ($key) {
-                $currentPrice = roundPrice(floatval($priceArray[$key]['price']));
-            } else {
-                $symbol = strtoupper($alertsData[$i]['symbol']);
-                $symbolPieces = explode("/", $symbol);
-                if (count($symbolPieces) == 2) {
-                    $key0 = array_search($symbolPieces[0] . "USDT", array_column($priceArray, 'symbol'));
-                    $key1 = array_search($symbolPieces[1] . "USDT", array_column($priceArray, 'symbol'));
-                    $price0 = floatval($priceArray[$key0]['price']);
-                    $price1 = floatval($priceArray[$key1]['price']);
-                    $currentPrice =  roundPrice(floatval($price0 / $price1));
-                } else continue;
-            }
+            $currentPrice = getPrice($alertsData[$i]['symbol']);
             $percentDiff = round(($currentPrice - $alertsData[$i]['value']) / ($alertsData[$i]['value'] * 0.01), 1);
             $tmpDirection = $alertsData[$i]['direction'] ? "UP" : "DOWN";
             // ДОБАВИТЬ !!! Считывать количество символов после запятой в текущей цене
@@ -193,7 +156,7 @@ function getAlertsTable(int $chat_id, $incomingCommand)
  * @param int $chat_id
  * @param $incomingCommand
  */
-function addAlert(int $chat_id, $incomingCommand)
+function addAlert(int $chat_id, $incomingCommand): void
 {
     global $pdo;
     //sendServiceMessage(implode('|', $incomingCommand));
@@ -204,7 +167,7 @@ function addAlert(int $chat_id, $incomingCommand)
     }
     // Проверка ПАРЫ
     $symbol = strtoupper($incomingCommand[1]); // Приводим символы пары к верхнему регистру
-    $price = getCurrentPrice($symbol);
+    $price = getPrice($symbol);
     if ($price < 0) {
         sendMessage($chat_id, "\xE2\x81\x89 Пара '" . $symbol . "' не найдена или ошибка получения данных.");
         exit;
@@ -247,7 +210,7 @@ function addAlert(int $chat_id, $incomingCommand)
  * @param int $chat_id
  * @param $incomingCommand
  */
-function updateAlert(int $chat_id, $incomingCommand) //$serial, $value, $direction = "DEF"
+function updateAlert(int $chat_id, $incomingCommand): void //$serial, $value, $direction = "DEF"
 {
     global $pdo;
     global $priceArray;
@@ -309,18 +272,19 @@ function updateAlert(int $chat_id, $incomingCommand) //$serial, $value, $directi
  * @param int $chat_id
  * @param $incomingCommand
  */
-function delAlerts(int $chat_id, $incomingCommand)
+function delAlerts(int $chat_id, $incomingCommand): void
 {
     global $pdo;
-    //sendServiceMessage(implode('|', $incomingCommand));
-    if (count($incomingCommand) <= 1) {
+    sendServiceMessage(implode('|', $incomingCommand) . "\n" . count($incomingCommand));
+    if (count($incomingCommand) == 1) {
+
         sendMessage($chat_id, "\xE2\x81\x89 Для удаления уведомлений укажите порядковые номера через пробел.\n" .
             "/get - список уведомлений\n/help - расширенная справка");
         exit;
     }
     $delRowID = "";
     // Проверяем аргумент на соответствие ALL all и удаляем все записи!
-    if (count($incomingCommand) == 1 && ($incomingCommand[1] == "all" || $incomingCommand[1] == "ALL")) {
+    if (count($incomingCommand) > 1 && ($incomingCommand[1] == "all" || $incomingCommand[1] == "ALL")) {
         $sql = "DELETE FROM alerts WHERE user_id=" . $chat_id;
     } else {
         $alertDB = getAlerts($chat_id);

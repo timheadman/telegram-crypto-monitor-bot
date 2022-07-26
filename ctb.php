@@ -1,22 +1,17 @@
 <?php
 // https://omarov.net/@CryptoTrackerChannel/ctb.php
 echo "<pre>" . "@Crypto Tracker Bot. <br>START: " . time() . "<br>--------------------<br>";
+require_once 'global_functions.php'; // Глобальные функции.
 require_once 'sql.php'; // Подключение к MySQL, функции.
 require_once 'telegram.php'; // Подключение к Telegramm, функции.
 require_once 'binance.php'; // Функции Binance API.
-
-$priceArray = getAllCurrentPrice(); // Запрашиваем в массив все текущие цены с Binance
-if (!$priceArray) {
-    sendServiceMessage("\xE2\x81\x89 Проблема с получением всех ценовых пар Binance.");
-    exit;
-}
-
 require_once 'ctbDailyNews.php'; // Блок ежедневная информации по рынку
 require_once 'ctbWhaleFollow.php'; // Блок слежения за BTC Whale
 // ***************************************************************
 // ****** Блок информарования о резком изменении курса BTC *******
 // ***************************************************************
 const CRITICAL_PERCENTAGE = 10; // Разница в процентах в изменении курса BTC в сутки при превышении которого выводится оповещение
+global $priceArray;
 $key = array_search('BTCUSDT', array_column($priceArray, 'symbol'));
 $btcExchangeRateNow = round($priceArray[$key]['price']);
 $btcExchangeRateLast = round(getConfigData("ctbExchangeRateBTC"));
@@ -43,30 +38,10 @@ if ($btcExchangeRateNow <= 0) {
 // ***************************************************************
 // ************ Блок уведомлений об изменениях курса  ************
 // ***************************************************************
-try { // Проверяем наличие записей для уведомлений
-    global $pdo;
-    $sql = "SELECT * FROM alerts";
-    $alertsData = $pdo->query($sql)->fetchAll(); // Выполнение запроса SELECT
-} catch (PDOException $e) {
-    sendServiceMessage("\xE2\x9A\xA0 SELECT error (reminder.php):\n"
-        . $sql . "\n---\n" . $e->getMessage());
-    exit;
-}
+$alertsData = getAlerts(false);
+
 for ($i = 0; $i < count($alertsData); $i++) {
-    $key = array_search($alertsData[$i]['symbol'], array_column($priceArray, 'symbol'));
-    if ($key) {
-        $currentPrice = roundPrice(floatval($priceArray[$key]['price']));
-    } else {
-        $symbol = strtoupper($alertsData[$i]['symbol']);
-        $symbolPieces = explode("/", $symbol);
-        if (count($symbolPieces) == 2) {
-            $key0 = array_search($symbolPieces[0] . "USDT", array_column($priceArray, 'symbol'));
-            $key1 = array_search($symbolPieces[1] . "USDT", array_column($priceArray, 'symbol'));
-            $price0 = floatval($priceArray[$key0]['price']);
-            $price1 = floatval($priceArray[$key1]['price']);
-            $currentPrice =  roundPrice(floatval($price0 / $price1));
-        } else continue;
-    }
+    $currentPrice = getPrice($alertsData[$i]['symbol']);
     $alertPrice = $alertsData[$i]['value'];
     if ($alertsData[$i]['direction']) { // true - в сторону повышения цены
         if ($alertsData[$i]['reloadmultiplier']) {

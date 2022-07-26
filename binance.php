@@ -3,33 +3,50 @@
 // xxxxxxxxxxx BINANCE API FUNCTIONS xxxxxxxxxxx
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
+$priceArray = getAllPrice(); // Запрашиваем в массив все текущие цены с Binance
+if (!$priceArray) {
+    sendServiceMessage("\xE2\x81\x89 (binance.php) Проблема с получением всех ценовых пар Binance.");
+    exit;
+}
+
 /**
- * Возвращает текущую цену конкретной пары.
+ * Возвращает текущую цену запрашиваемой пары.
+ * Принимает как существующие пары Binance, так и не существующие пары (например ADA/DOT).
  * https://stackoverflow.com/questions/65864645/how-to-use-binance-api-simple-get-price-by-ticker
- * @param string $symbol Любой символ из существующих, функция пробует составить пар математически из нескольких запросов.
+ * @param string $symbol Любой символ из существующих, функция пробует составить пару из нескольких запросов.
  * @return float
  */
-function getCurrentPrice(string $symbol): float
+function getPrice(string $symbol): float
 {
     $symbol = strtoupper($symbol);
     $symbolPieces = explode("/", $symbol);
     switch (count($symbolPieces)) {
-        case 1:
-            return getExistingPrice($symbol);
-        case 2:
-            $price0 = getExistingPrice($symbolPieces[0] . "USDT");
-            $price1 = getExistingPrice($symbolPieces[1] . "USDT");
+        case 1: // Если пара из списка существующих торговых пар Binance
+            return findPriceInArray($symbol);
+        case 2: // Если пара составная (не из существующих пар Binance) запрашиваем отдельно две пары к USDT и создаем виртуальную пару
+            $price0 = findPriceInArray($symbolPieces[0] . "USDT");
+            $price1 = findPriceInArray($symbolPieces[1] . "USDT");
             return $price0 / $price1;
         default:
             return 0;
     }
 }
 
+function findPriceInArray(string $symbol): float
+{
+    global $priceArray;
+    foreach ($priceArray as $item) {
+        if (array_search($symbol, $item)) {
+            return (float)$item['price'];
+        }
+    }
+    return false;
+}
+
 /**
- * Возвращает текущую цену конкретной существующей пары.
- * Вспомогательная функция к getCurrentPrice.
+ * Запрос цены из списка существующих торговых пар Binance.
  * https://stackoverflow.com/questions/65864645/how-to-use-binance-api-simple-get-price-by-ticker
- * @param string $symbol Trade symbol (ex. "BTCUSDT")
+ * @param string $symbol Существующая на Binance торговая пара (например "BTCUSDT")
  * @return float
  */
 function getExistingPrice(string $symbol): float
@@ -123,40 +140,18 @@ function getHistoryPrice(string $symbol, int $startTime = 0, int $level = 5): fl
  * Возвращает все пары биржи Binance в массив.
  * @return array
  */
-function getAllCurrentPrice(): array
+function getAllPrice(): array
 {
     $urlBinanceAPI = 'https://api.binance.com/api/v3/ticker/price';
-    $arrData[] = 0;
     for ($i = 1; $i <= 3; $i++) {
         echo $i;
         $postData = file_get_contents($urlBinanceAPI);
         if ($postData) {
-            $arrData = json_decode($postData, true);
-            return $arrData;
+            return json_decode($postData, true);
         } elseif ($i == 3) {
             sendServiceMessage("binance.php\n" . $urlBinanceAPI . "\n" . error_get_last()["message"]);
         }
         sleep(1);
     }
     return array();
-}
-
-/**
- * Округляем цену по логике веса цены.
- * @param float $price
- * @return float
- */
-function roundPrice(float $price): float
-{
-    return round($price, ($price > 1) ? 2 : 8);
-}
-
-/**
- * конвертируем в строку округленую цену.
- * @param float $price
- * @return string
- */
-function printPrice(float $price): string
-{
-    return number_format($price, ($price > 1) ? 2 : 8);
 }
