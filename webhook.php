@@ -143,7 +143,7 @@ function getAlertsTable(int $chat_id, $incomingCommand): void
             $tmpDirection = $alertsData[$i]['direction'] ? "UP" : "DOWN";
             // ДОБАВИТЬ !!! Считывать количество символов после запятой в текущей цене
             // и добивать нулями цену уведомления для удобства считывания.
-            $alertsTable .= $i . ". " . $alertsData[$i]['symbol'] . " " . printPrice($currentPrice)  . " "
+            $alertsTable .= $i . ". " . $alertsData[$i]['symbol'] . " " . $alertsData[$i]['value']  . " "
                 . $tmpDirection . " (" . $percentDiff . "% " . printPrice($currentPrice) . ") " . "\n";
         }
         sendMessage($chat_id, $alertsTable);
