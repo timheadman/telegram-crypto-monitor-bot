@@ -1,11 +1,26 @@
 <?php
+echo 'binance.php<br>';
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 // xxxxxxxxxxx BINANCE API FUNCTIONS xxxxxxxxxxx
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 $priceArray = getAllPrice(); // Запрашиваем в массив все текущие цены с Binance
-if (!$priceArray) {
-    sendServiceMessage("\xE2\x81\x89 (binance.php) Проблема с получением всех ценовых пар Binance.");
+
+/**
+ * Возвращает все пары биржи Binance в массив.
+ * @return array
+ */
+function getAllPrice(): array
+{
+    $urlBinanceAPI = 'https://api.binance.com/api/v3/ticker/price';
+    for ($i = 1; $i <= 2; $i++) {
+        $postData = file_get_contents($urlBinanceAPI);
+        if ($postData) {
+            return json_decode($postData, true);
+        }
+        sleep(5);
+    }
+    sendServiceMessage("binance.php\n" . $urlBinanceAPI . "\n" . error_get_last()["message"]);
     exit;
 }
 
@@ -136,22 +151,3 @@ function getHistoryPrice(string $symbol, int $startTime = 0, int $level = 5): fl
     }
 }
 
-/**
- * Возвращает все пары биржи Binance в массив.
- * @return array
- */
-function getAllPrice(): array
-{
-    $urlBinanceAPI = 'https://api.binance.com/api/v3/ticker/price';
-    for ($i = 1; $i <= 3; $i++) {
-        echo $i;
-        $postData = file_get_contents($urlBinanceAPI);
-        if ($postData) {
-            return json_decode($postData, true);
-        } elseif ($i == 3) {
-            sendServiceMessage("binance.php\n" . $urlBinanceAPI . "\n" . error_get_last()["message"]);
-        }
-        sleep(1);
-    }
-    return array();
-}

@@ -1,4 +1,5 @@
 <?php
+echo 'telegram.php<br>';
 require_once 'config.php';
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ++++++++++++++ configTG.php ver.3.4 +++++++++++++++++

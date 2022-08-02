@@ -1,6 +1,6 @@
 <?php
-// https://omarov.net/@CryptoTrackerChannel/ctb.php
-echo "<pre>" . "@Crypto Tracker Bot. <br>START: " . time() . "<br>--------------------<br>";
+// https://omarov.net/CryptoTrackerChannel/ctb.php
+echo "<pre>" . "Crypto Tracker Bot. <br>START: " . time() . "<br>--------------------<br>";
 require_once 'global_functions.php'; // Глобальные функции.
 require_once 'sql.php'; // Подключение к MySQL, функции.
 require_once 'telegram.php'; // Подключение к Telegramm, функции.

@@ -1,4 +1,5 @@
 <?php
+echo 'global_functions.php<br>';
 /**
  * Получить уведомления из базы данных в виде массива.
  * @param int $chat_id Номер чата или false для получения alerts всех пользователей
