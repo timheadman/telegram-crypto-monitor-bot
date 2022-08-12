@@ -118,9 +118,9 @@ function setError(string $error): void
 
 /**
  * Получаем количество ошибок за день.
- * @return int Количетво ошибок.
+ * @return string Возвращает число ошибок, если ошибок нет возвращает пустую строку.
  */
-function getError(): int
+function getError(): string
 {
     global $pdo;
     $sql = "SELECT * FROM error WHERE time >= CURDATE() - INTERVAL 1 DAY and time < CURDATE()";
@@ -128,7 +128,7 @@ function getError(): int
     try {
         $arr = $pdo->query($sql)->fetchAll(); // Выполнение запроса SELECT
         //sendServiceMessage(var_export($arr, true));
-        return count($arr);
+        if ($arr) return count($arr); else return "";
     } catch (PDOException $e) {
         sendServiceMessage("\xE2\x9A\xA0 SELECT error (sql.php: getError()):\n" . $sql . "\n-- - \n" . $e->getMessage());
         exit;

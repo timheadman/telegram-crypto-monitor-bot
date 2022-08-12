@@ -14,8 +14,7 @@ if (getConfigData("ctbDNLastRunTS") < $dayNow && $hourNow >= UPDATE_HOUR) {
         getFGI() .
         getBTCD() .
         getCurrencyRates()) .
-        '\nService: ' .
-        getError();
+        '\n' . getError();
     setConfigData("ctbDNLastRunTS", time()); // Время последнего запуска в timesatmp );
 } else {
     return "";
