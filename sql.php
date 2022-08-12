@@ -24,9 +24,9 @@ try {
  */
 function getConfigData(string $key): int
 {
+    global $pdo;
+    $sql = "SELECT " . $key . " FROM config WHERE id = 0";
     try {
-        global $pdo;
-        $sql = "SELECT " . $key . " FROM config WHERE id = 0";
         $arr = $pdo->query($sql)->fetchAll(); // Выполнение запроса SELECT
         //sendServiceMessage("SQL Query:\n" . $sql);
         //sendServiceMessage(var_export($arr, true));
@@ -106,12 +106,31 @@ function setError(string $error): void
 {
     global $pdo;
     $sql = "INSERT INTO error (err_message) VALUES ('" . $error . "')";
-    sendServiceMessage("SQL Query:\n" . $sql);
+    //sendServiceMessage("SQL Query:\n" . $sql);
     try {
         $query = $pdo->prepare($sql);
         $query->execute();
     } catch (PDOException $e) {
         sendServiceMessage("\xE2\x9A\xA0 INSERT error (sql.php: setConfigData):\n" . $sql . "\n-- - \n" . $e->getMessage());
+        exit;
+    }
+}
+
+/**
+ * Получаем количество ошибок за день.
+ * @return int Количетво ошибок.
+ */
+function getError(): int
+{
+    global $pdo;
+    $sql = "SELECT * FROM error WHERE time >= CURDATE() - INTERVAL 1 DAY and time < CURDATE()";
+    //sendServiceMessage("SQL Query:\n" . $sql);
+    try {
+        $arr = $pdo->query($sql)->fetchAll(); // Выполнение запроса SELECT
+        //sendServiceMessage(var_export($arr, true));
+        return count($arr);
+    } catch (PDOException $e) {
+        sendServiceMessage("\xE2\x9A\xA0 SELECT error (sql.php: getError()):\n" . $sql . "\n-- - \n" . $e->getMessage());
         exit;
     }
 }

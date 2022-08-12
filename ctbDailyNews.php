@@ -1,5 +1,5 @@
 <?php
-echo "<pre>" . "ctbDailyNews (" . time()  . "): <br>";
+echo "ctbDailyNews (" . time()  . ") <br>";
 require_once 'sql.php'; // Подключение к MySQL, функции.
 // ***************************************************************
 // ***************** Блок ежедневной информации ******************
@@ -13,7 +13,9 @@ if (getConfigData("ctbDNLastRunTS") < $dayNow && $hourNow >= UPDATE_HOUR) {
     sendMessage(TG_CHAT_ID,
         getFGI() .
         getBTCD() .
-        getCurrencyRates());
+        getCurrencyRates()) .
+        '\nService: ' .
+        getError();
     setConfigData("ctbDNLastRunTS", time()); // Время последнего запуска в timesatmp );
 } else {
     return "";

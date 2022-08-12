@@ -109,4 +109,4 @@ function setReload(int $key, int $reloadmultiplier): void
 
 // **************************************************
 setConfigData("ctbLastRunTS", time()); // Время последнего запуска в timesatmp );
-echo "<br>--------------------<br>END: " . time();
+echo "--------------------<br>END: " . time();
