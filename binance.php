@@ -13,14 +13,11 @@ $priceArray = getAllPrice(); // Запрашиваем в массив все т
 function getAllPrice(): array
 {
     $urlBinanceAPI = 'https://api.binance.com/api/v3/ticker/price';
-    for ($i = 1; $i <= 2; $i++) {
-        $postData = file_get_contents($urlBinanceAPI);
-        if ($postData) {
-            return json_decode($postData, true);
-        }
-        sleep(5);
+    $postData = file_get_contents($urlBinanceAPI);
+    if ($postData) {
+        return json_decode($postData, true);
     }
-    sendServiceMessage("binance.php\n" . $urlBinanceAPI . "\n" . error_get_last()["message"]);
+    setError("getAllPrice(): " . error_get_last()["message"]);
     exit;
 }
 
@@ -87,7 +84,7 @@ function getExistingPrice(string $symbol): float
         if ($i < 3) sleep(1);
     }
     if ($connectionError) {
-        sendServiceMessage("binance.php\n" . $urlBinanceAPI . "\n" . error_get_last()["message"]);
+        setError("getExistingPrice(): " . error_get_last()["message"]);
     }
     return $price;
 }
@@ -144,7 +141,7 @@ function getHistoryPrice(string $symbol, int $startTime = 0, int $level = 5): fl
         if ($i < 3) sleep(1);
     }
     if ($connectionError) {
-        sendServiceMessage("binance.php\n" . $urlBinanceAPI . "\n" . error_get_last()["message"]);
+        setError("getHistoryPrice(): " . error_get_last()["message"]);
         return false;
     } else {
         return $price;

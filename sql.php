@@ -97,3 +97,21 @@ function saveUserAndMessage($inputMessage, $messageType): void
         sendServiceMessage("\xE2\x9A\xA0 INSERT error (sql.php: saveUserAndMessage):\n" . $sql . "\n-- - \n" . $e->getMessage());
     }
 }
+
+/**
+ * Сохранить ошибку в баду данных.
+ * @param string $error Текстовое сообщение об ошибке.
+ */
+function setError(string $error): void
+{
+    global $pdo;
+    $sql = "INSERT INTO error (err_message) VALUES ('" . $error . "')";
+    sendServiceMessage("SQL Query:\n" . $sql);
+    try {
+        $query = $pdo->prepare($sql);
+        $query->execute();
+    } catch (PDOException $e) {
+        sendServiceMessage("\xE2\x9A\xA0 INSERT error (sql.php: setConfigData):\n" . $sql . "\n-- - \n" . $e->getMessage());
+        exit;
+    }
+}
