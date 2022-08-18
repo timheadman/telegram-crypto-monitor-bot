@@ -1,5 +1,5 @@
 <?php
-echo 'telegram.php<br>';
+$start_time = microtime(true);
 require_once 'config.php';
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ++++++++++++++ configTG.php ver.3.4 +++++++++++++++++
@@ -51,7 +51,7 @@ function sendServiceMessage($message): void
  * @param $keyboard
  * @return mixed
  */
-function sendInlineKeyboard($chat_id, $message, $keyboard): mixed
+function sendInlineKeyboard($chat_id, $message, $keyboard)
 {
     $url = TG_API . "sendMessage?chat_id=" . $chat_id . "&text=" . urlencode($message) .
         "&disable_web_page_preview=0&" . http_build_query(array(
@@ -118,3 +118,5 @@ function parseCommand($text): array
         return array();
     }
 }
+$end_time = microtime(true);
+echo 'telegram: ' . number_format(($end_time - $start_time),8,'.',''). 'sec.<br>';

@@ -1,5 +1,5 @@
 <?php
-echo "ctbWhaleFollow (" . time()  . ") <br>";
+$start_time = microtime(true);
 require_once 'sql.php'; // Подключение к MySQL, функции.
 // ***************************************************************
 // ********** Блок запроса новых транзакциях в блокчейн **********
@@ -58,3 +58,5 @@ function getNewWhaleTrasaction(): string
     }
     return $tmpString;
 }
+$end_time = microtime(true);
+echo 'ctbWhaleFollow: ' . number_format(($end_time - $start_time),8,'.','') . 'sec.<br>';

@@ -1,5 +1,5 @@
 <?php
-echo 'global_functions.php<br>';
+$start_time = microtime(true);
 /**
  * Получить уведомления из базы данных в виде массива.
  * @param int $chat_id Номер чата или false для получения alerts всех пользователей
@@ -31,3 +31,5 @@ function printPrice(float $price): string
 {
     return rtrim(number_format($price, ($price > 1) ? 2 : 8), "0");
 }
+$end_time = microtime(true);
+echo 'global_functions: ' . number_format(($end_time - $start_time),8,'.',''). 'sec.<br>';

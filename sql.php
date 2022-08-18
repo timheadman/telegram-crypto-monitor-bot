@@ -1,5 +1,5 @@
 <?php
-echo 'sql.php<br>';
+$start_time = microtime(true);
 require_once 'config.php';
 require_once 'telegram.php';
 
@@ -134,3 +134,5 @@ function getError(): string
         exit;
     }
 }
+$end_time = microtime(true);
+echo 'sql: ' . number_format(($end_time - $start_time),8,'.','') . 'sec.<br>';

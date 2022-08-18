@@ -1,5 +1,5 @@
 <?php
-echo "ctbDailyNews (" . time()  . ") <br>";
+$start_time = microtime(true);
 require_once 'sql.php'; // Подключение к MySQL, функции.
 // ***************************************************************
 // ***************** Блок ежедневной информации ******************
@@ -120,3 +120,5 @@ function getCurrencyRates(): string
     setError("ctbDailyNews (Alternative.me BTC & ETH price error): " . error_get_last()["message"]);
     return false;
 }
+$end_time = microtime(true);
+echo 'ctbDailyNews: ' . number_format(($end_time - $start_time),8,'.','') . 'sec.<br>';

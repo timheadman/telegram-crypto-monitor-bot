@@ -1,5 +1,5 @@
 <?php
-echo 'binance.php<br>';
+$start_time = microtime(true);
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 // xxxxxxxxxxx BINANCE API FUNCTIONS xxxxxxxxxxx
 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -110,4 +110,5 @@ function getHistoryPrice(string $symbol, int $startTime = 0, int $level = 5): fl
     setError("getHistoryPrice(): " . error_get_last()["message"]);
     return false;
 }
-
+$end_time = microtime(true);
+echo 'binance: ' . number_format(($end_time - $start_time),8,'.','') . 'sec.<br>';
