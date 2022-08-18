@@ -1,6 +1,7 @@
 <?php
 // https://omarov.net/CryptoTrackerChannel/ctb.php
-echo "<pre>" . "Crypto Tracker Bot. <br>START: " . time() . "<br>--------------------<br>";
+$start_time = microtime(true);
+echo "<pre>" . "Crypto Tracker Bot. <br>START: " . $start_time . "<br>--------------------<br>";
 require_once 'global_functions.php'; // Глобальные функции.
 require_once 'sql.php'; // Подключение к MySQL, функции.
 require_once 'telegram.php'; // Подключение к Telegramm, функции.
@@ -106,5 +107,6 @@ function setReload(int $key, int $reloadmultiplier): void
 }
 
 // **************************************************
+$end_time = microtime(true);
 setConfigData("ctbLastRunTS", time()); // Время последнего запуска в timesatmp );
-echo "--------------------<br>END: " . time();
+echo '--------------------<br>' . round(($end_time - $start_time), 4) . 'sec.<br>';
