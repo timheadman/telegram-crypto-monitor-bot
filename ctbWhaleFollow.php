@@ -53,7 +53,7 @@ function getNewWhaleTrasaction(): string
         }
     }
     if ($connectionError) {
-        sendServiceMessage("Whale Follow error (type:" . error_get_last()["type"] . "):\n" . error_get_last()["message"]);
+        setError("ctbWhaleFollow (Whale Follow error): " . error_get_last()["message"]);
         setConfigData("ctbWFError", 1);
     }
     return $tmpString;

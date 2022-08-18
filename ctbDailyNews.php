@@ -23,37 +23,30 @@ if (getConfigData("ctbDNLastRunTS") < $dayNow && $hourNow >= UPDATE_HOUR) {
 // +++++++++++++++++++++++ БЛОК ФУНКЦИЙ ++++++++++++++++++++++++++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /**
- * @return string
+ * @return string Если пара не найдена, возвращает false.
  */
 function getFGI(): string
 {
-    $tmpString = "";
-    $connectionError = true;
     for ($i = 1; $i <= 3; $i++) {
         $postData = file_get_contents('https://api.alternative.me/fng/?limit=1');
         if ($postData) {
-            $connectionError = false;
             $dataAPIAlternative = json_decode($postData, true);
-            $tmpString = "\xF0\x9F\x92\xA1 #dailynews \xF0\x9F\x92\xA1\nFear and Greed Index: " .
+            return "\xF0\x9F\x92\xA1 #dailynews \xF0\x9F\x92\xA1\nFear and Greed Index: " .
                 $dataAPIAlternative["data"]["0"]["value"] . " ("
                 . $dataAPIAlternative["data"]["0"]["value_classification"] . ")"
                 . "\n";
-            break;
         }
         sleep(5);
     }
-    if ($connectionError) sendServiceMessage("Alternative.me API error (Daily News: https://api.alternative.me/fng/?limit=1):\n"
-        . error_get_last()["message"]);
-    return $tmpString;
+    setError("ctbDailyNews (Alternative.me FGI error): " . error_get_last()["message"]);
+    return false;
 }
 
 /**
- * @return string
+ * @return string Если пара не найдена, возвращает false.
  */
 function getBTCD(): string
 {
-    $tmpString = "";
-    $connectionError = true;
     $url = 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest';
     $parameters = [];
     $headers = ['Accept: application/json', 'X-CMC_PRO_API_KEY: ' . COINMARKETCAP_APIKEY];
@@ -70,51 +63,46 @@ function getBTCD(): string
         ));
         $response = curl_exec($curl); // Send the request, save the response
         if ($response) {
-            $connectionError = false;
             $responseJSON = json_decode($response, true);
             $btcD = $responseJSON['data']['btc_dominance'];
             $difBtcD = $btcD - $responseJSON['data']['btc_dominance_yesterday'];
             $totalMCNow = $responseJSON['data']['quote']['USD']['total_market_cap'];
             $totalMCPercentChange = $responseJSON['data']['quote']['USD']['total_market_cap_yesterday_percentage_change'];
             $mcALTNow = $responseJSON['data']['quote']['USD']['altcoin_market_cap'];
-            $mcBTCNow = $totalMCNow - $mcALTNow;
             $mcALTPercentChange = ($mcALTNow * $totalMCPercentChange) / $totalMCNow;
             $mcBTCPercentChange = $totalMCPercentChange - $mcALTPercentChange;
-            $tmpString = "\nИндекс доминации: " . number_format($btcD, 2, ',', ' ') . "% ("
+            curl_close($curl); // Close request
+            return "\nИндекс доминации: " . number_format($btcD, 2, ',', ' ') . "% ("
                 . ($difBtcD > 0 ? "+" : "") . number_format($difBtcD, 1, ',', ' ') . "%)"
                 . "\nОбщая капитализация: " . number_format($totalMCNow / 1000000000000, 2, ',', ' ')
                 . " трлн.$ (" . ($totalMCPercentChange > 0 ? "+" : "") . number_format($totalMCPercentChange, 1, ',', ' ') . "%)"
-                . "\n- BTC: " . number_format($mcBTCNow / 1000000000000, 2, ',', ' ')
+                . "\n- BTC: " . number_format(($totalMCNow - $mcALTNow) / 1000000000000, 2, ',', ' ')
                 . " трлн.$ (" . ($mcBTCPercentChange > 0 ? "+" : "") . number_format($mcBTCPercentChange, 1, ',', ' ') . "%)"
                 . "\n- ALT: " . number_format($mcALTNow / 1000000000000, 2, ',', ' ')
                 . " трлн.$ (" . ($mcALTPercentChange > 0 ? "+" : "") . number_format($mcALTPercentChange, 1, ',', ' ') . "%)"
                 . "\n";
-            break;
         }
         curl_close($curl); // Close request
         sleep(5);
     }
-    if ($connectionError) sendServiceMessage("Coinmarketcap API error. (Daily News):\n" . error_get_last()["message"]);
-    return $tmpString;
+    setError("ctbDailyNews (Coinmarketcap API error): " . error_get_last()["message"]);
+    return false;
 }
 
 /**
- * @return string
+ * @return string Если пара не найдена, возвращает false.
  */
 function getCurrencyRates(): string
 {
-    $tmpString = "";
-    $connectionError = true;
     for ($i = 1; $i <= 3; $i++) {
         $postData = file_get_contents('https://api.alternative.me/v2/ticker/?limit=2');  // limit = 2 первые две валюты по капитализации BTC и ETH
         if ($postData) {
-            $connectionError = false;
             $data = json_decode($postData, true);
             $difBTC24 = $data["data"]["1"]["quotes"]["USD"]["percentage_change_24h"];
             $difBTC7d = $data["data"]["1"]["quotes"]["USD"]["percentage_change_7d"];
             $difETH24 = $data["data"]["1027"]["quotes"]["USD"]["percentage_change_24h"];
             $difETH7d = $data["data"]["1027"]["quotes"]["USD"]["percentage_change_7d"];
-            $tmpString = "\nКурс BTCUSD: " . number_format($data["data"]["1"]["quotes"]["USD"]["price"], 0, ',', ' ') . "$"
+            return "\nКурс BTCUSD: " . number_format($data["data"]["1"]["quotes"]["USD"]["price"], 0, ',', ' ') . "$"
                 . "\nИзменения за 24 часа: " . ($difBTC24 > 0 ? "+" : "")
                 . number_format($difBTC24, 1, ',', ' ') . "%"
                 . "\nИзменения за 7 дней: " . ($difBTC7d > 0 ? "+" : "")
@@ -125,11 +113,10 @@ function getCurrencyRates(): string
                 . "\nИзменения за 7 дней: " . ($difETH7d > 0 ? "+" : "")
                 . number_format($difETH7d, 1, ',', ' ') . "%"
                 . "\n";
-            break;
         } else {
             sleep(5);
         }
     }
-    if ($connectionError) sendServiceMessage("Alternative.me API Error (partDailyNews: https://api.alternative.me/v2/ticker/?limit=2): " . error_get_last()["message"]);
-    return $tmpString;
+    setError("ctbDailyNews (Alternative.me BTC & ETH price error): " . error_get_last()["message"]);
+    return false;
 }

@@ -26,7 +26,7 @@ function getAllPrice(): array
  * Принимает как существующие пары Binance, так и не существующие пары (например ADA/DOT).
  * https://stackoverflow.com/questions/65864645/how-to-use-binance-api-simple-get-price-by-ticker
  * @param string $symbol Любой символ из существующих, функция пробует составить пару из нескольких запросов.
- * @return float
+ * @return float Если пара не найдена, возвращает false.
  */
 function getPrice(string $symbol): float
 {
@@ -34,17 +34,23 @@ function getPrice(string $symbol): float
     $symbolPieces = explode("/", $symbol);
     switch (count($symbolPieces)) {
         case 1: // Если пара из списка существующих торговых пар Binance
-            return findPriceInArray($symbol);
+            return getPriceFromArray($symbol);
         case 2: // Если пара составная (не из существующих пар Binance) запрашиваем отдельно две пары к USDT и создаем виртуальную пару
-            $price0 = findPriceInArray($symbolPieces[0] . "USDT");
-            $price1 = findPriceInArray($symbolPieces[1] . "USDT");
+            $price0 = getPriceFromArray($symbolPieces[0] . "USDT");
+            $price1 = getPriceFromArray($symbolPieces[1] . "USDT");
             return $price0 / $price1;
         default:
-            return 0;
+            return false;
     }
 }
 
-function findPriceInArray(string $symbol): float
+/**
+ * Вспомогательная функция.
+ * Возвращает текущую цену пары из массива $priceArray.
+ * @param string $symbol Существующая на Binance торговая пара (например "BTCUSDT")
+ * @return float Если пара не найдена, возвращает false.
+ */
+function getPriceFromArray(string $symbol): float
 {
     global $priceArray;
     foreach ($priceArray as $item) {
@@ -56,46 +62,12 @@ function findPriceInArray(string $symbol): float
 }
 
 /**
- * Запрос цены из списка существующих торговых пар Binance.
- * https://stackoverflow.com/questions/65864645/how-to-use-binance-api-simple-get-price-by-ticker
- * @param string $symbol Существующая на Binance торговая пара (например "BTCUSDT")
- * @return float
- */
-function getExistingPrice(string $symbol): float
-{
-    /* EXAMPLE 
-   https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT
-   */
-    $symbol = strtoupper($symbol);
-    $urlBinanceAPI = 'https://api.binance.com/api/v3/ticker/price?symbol=' . strtoupper($symbol);
-    //sendServiceMessage($urlBinanceAPI);
-    $connectionError = true;
-    $price = -1;
-    for ($i = 1; $i <= 3; $i++) {
-        $postData = file_get_contents($urlBinanceAPI); // Разобраться с CURL !!! сервер выдает конкретную ошибку, а данный оператор выдает false в итоге при ошибочном запросе, как будто страница не доступна, нужно самому разбирать ответ
-        //sendServiceMessage(var_export($postData, true));
-        if ($postData) {
-            $jsonPostData = json_decode($postData, true);
-            //sendServiceMessage(var_export($jsonPostData, true));
-            $price = (float)$jsonPostData['price'];
-            $connectionError = false;
-            break;
-        }
-        if ($i < 3) sleep(1);
-    }
-    if ($connectionError) {
-        setError("getExistingPrice(): " . error_get_last()["message"]);
-    }
-    return $price;
-}
-
-/**
  * Возвращает историческое значение конкретной пары по заданным условиям.
  * https://developers.binance.com/docs/binance-api/spot-detail/rest-api#klinecandlestick-data
  * @param string $symbol Trade symbol (ex. "BTCUSDT")
  * @param int $startTime UNIX time (0 - default)
  * @param int $level 1 - Open, 2 - High, 3 - Low, 4 - Close, 5 - Average (default)
- * @return float
+ * @return float Если пара не найдена, возвращает false.
  */
 function getHistoryPrice(string $symbol, int $startTime = 0, int $level = 5): float
 {
@@ -127,24 +99,15 @@ function getHistoryPrice(string $symbol, int $startTime = 0, int $level = 5): fl
             '&limit=' . $limit . '&startTime=' . $startTime_ . '&endTime=' . $endTime_;
     }
     //sendServiceMessage($urlBinanceAPI);
-    $connectionError = true;
-    for ($i = 1; $i <= 3; $i++) {
-        $postData = file_get_contents($urlBinanceAPI);
-        if ($postData) {
-            $jsonPostData = json_decode($postData, true);
-            if ($level <= 4 && $level > 0)
-                $price = (float)$jsonPostData[0][$level];
-            else $price = ((float)$jsonPostData[0][2] + (float)$jsonPostData[0][3]) / 2;
-            $connectionError = false;
-            break;
-        }
-        if ($i < 3) sleep(1);
-    }
-    if ($connectionError) {
-        setError("getHistoryPrice(): " . error_get_last()["message"]);
-        return false;
-    } else {
+    $postData = file_get_contents($urlBinanceAPI);
+    if ($postData) {
+        $jsonPostData = json_decode($postData, true);
+        if ($level <= 4 && $level > 0)
+            $price = (float)$jsonPostData[0][$level];
+        else $price = ((float)$jsonPostData[0][2] + (float)$jsonPostData[0][3]) / 2;
         return $price;
     }
+    setError("getHistoryPrice(): " . error_get_last()["message"]);
+    return false;
 }
 

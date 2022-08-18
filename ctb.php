@@ -50,7 +50,7 @@ for ($i = 0; $i < count($alertsData); $i++) {
                 // Пересекли зону последнего multiplier, повышаем multiplier
                 setReload($alertsData[$i]['id'], $alertsData[$i]['reloadmultiplier'] + 2);
                 sendMessage($alertsData[$i]['user_id'], "\xE2\xAC\x86 Курс " . $alertsData[$i]['symbol'] .
-                    " поднялся выше " .   printPrice($alertPrice) . " + " . $alertsData[$i]['reloadmultiplier'] .
+                    " поднялся выше " . printPrice($alertPrice) . " + " . $alertsData[$i]['reloadmultiplier'] .
                     "% до " . rtrim($currentPrice, "0") . "\nСледующий уровень срабатывания: " .
                     printPrice($alertPrice * (1 + ($alertsData[$i]['reloadmultiplier'] + 2) / 100)));
             } elseif ($currentPrice < $alertPrice * (1 + ($alertsData[$i]['reloadmultiplier'] - 4) / 100)) {
@@ -69,7 +69,7 @@ for ($i = 0; $i < count($alertsData); $i++) {
                 // Пересекли зону последнего multiplier, повышаем multiplier
                 setReload($alertsData[$i]['id'], $alertsData[$i]['reloadmultiplier'] + 2);
                 sendMessage($alertsData[$i]['user_id'], "\xE2\xAC\x87 Курс " . $alertsData[$i]['symbol'] .
-                    " опустился ниже " .   printPrice($alertPrice) . " - " . $alertsData[$i]['reloadmultiplier'] .
+                    " опустился ниже " . printPrice($alertPrice) . " - " . $alertsData[$i]['reloadmultiplier'] .
                     "% до " . rtrim($currentPrice, "0") . "\nСледующий уровень срабатывания: " .
                     printPrice($alertPrice * (1 - ($alertsData[$i]['reloadmultiplier'] + 2) / 100)));
             } elseif ($currentPrice > $alertPrice * (1 - ($alertsData[$i]['reloadmultiplier'] - 4) / 100)) {
@@ -94,16 +94,14 @@ for ($i = 0; $i < count($alertsData); $i++) {
 function setReload(int $key, int $reloadmultiplier): void
 {
     global $pdo;
-    $sql = "";
+    $sql = "UPDATE alerts SET reloadmultiplier = " . $reloadmultiplier .
+        ", reloadtime = " . time() . " WHERE id = " . $key;
+    //sendServiceMessage($sql);
     try {
-        $sql = "UPDATE alerts SET reloadmultiplier = " . $reloadmultiplier .
-            ", reloadtime = " . time() . " WHERE id = " . $key;
-        //sendServiceMessage($sql);
         $query = $pdo->prepare($sql);
         $query->execute();
     } catch (PDOException $e) {
-        sendServiceMessage("\xE2\x9A\xA0 UPDATE error (ctb.php):\n" . $sql
-            . "\n---\n" . $e->getMessage());
+        setError("ctb (UPDATE error): " . error_get_last()["message"]);
     }
 }
 
