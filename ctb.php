@@ -1,7 +1,7 @@
 <?php
 // https://omarov.net/CryptoTrackerChannel/ctb.php
 $ctb_start_time = microtime(true);
-echo "<pre>" . "Crypto Tracker Bot" . "\n--------------------";
+echo "Crypto Tracker Bot" . "\n--------------------";
 require_once 'global_functions.php'; // Глобальные функции.
 require_once 'sql.php'; // Подключение к MySQL, функции.
 require_once 'telegram.php'; // Подключение к Telegramm, функции.
