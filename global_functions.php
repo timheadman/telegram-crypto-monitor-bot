@@ -32,4 +32,4 @@ function printPrice(float $price): string
     return rtrim(number_format($price, ($price > 1) ? 2 : 8), "0");
 }
 $end_time = microtime(true);
-echo 'global_functions: ' . number_format(($end_time - $start_time),8,'.',''). 'sec.<br>';
+echo 'global_functions: ' . number_format(($end_time - $start_time),8,'.',''). "sec.\n";

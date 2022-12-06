@@ -111,4 +111,4 @@ function getHistoryPrice(string $symbol, int $startTime = 0, int $level = 5): fl
     return false;
 }
 $end_time = microtime(true);
-echo 'binance: ' . number_format(($end_time - $start_time),8,'.','') . 'sec.<br>';
+echo 'binance: ' . number_format(($end_time - $start_time),8,'.','') . "sec.\n";

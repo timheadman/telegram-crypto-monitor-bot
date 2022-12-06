@@ -59,4 +59,4 @@ function getNewWhaleTrasaction(): string
     return $tmpString;
 }
 $end_time = microtime(true);
-echo 'ctbWhaleFollow: ' . number_format(($end_time - $start_time),8,'.','') . 'sec.<br>';
+echo 'ctbWhaleFollow: ' . number_format(($end_time - $start_time),8,'.','') . "sec.\n";

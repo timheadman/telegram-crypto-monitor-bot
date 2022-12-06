@@ -121,4 +121,4 @@ function getCurrencyRates(): string
     return false;
 }
 $end_time = microtime(true);
-echo 'ctbDailyNews: ' . number_format(($end_time - $start_time),8,'.','') . 'sec.<br>';
+echo 'ctbDailyNews: ' . number_format(($end_time - $start_time),8,'.','') . "sec.\n";

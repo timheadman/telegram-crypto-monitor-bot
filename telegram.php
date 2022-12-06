@@ -119,4 +119,4 @@ function parseCommand($text): array
     }
 }
 $end_time = microtime(true);
-echo 'telegram: ' . number_format(($end_time - $start_time),8,'.',''). 'sec.<br>';
+echo 'telegram: ' . number_format(($end_time - $start_time),8,'.',''). "sec.\n";

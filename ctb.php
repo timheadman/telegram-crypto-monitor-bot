@@ -109,4 +109,4 @@ function setReload(int $key, int $reloadmultiplier): void
 // **************************************************
 $ctb_end_time = microtime(true);
 setConfigData("ctbLastRunTS", time()); // Время последнего запуска в timesatmp );
-echo "--------------------\n" . number_format(($ctb_end_time - $ctb_start_time), 8, '.', '') . 'sec.<br>';
+echo "--------------------\n" . number_format(($ctb_end_time - $ctb_start_time), 8, '.', '') . "sec.\n";
