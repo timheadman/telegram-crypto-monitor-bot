@@ -2,6 +2,7 @@
 *.log
 config.*
 *test*
+*venv*
 /backup/
 /image/
 /icon/
