@@ -14,7 +14,7 @@ function getAlerts(int $chat_id): array
         return $pdo->query($sql)->fetchAll(); // Выполнение запроса SELECT
         //sendServiceMessage($sql . "\n" . var_export($alertsData, true));
     } catch (PDOException $e) {
-        sendMessage($chat_id, "\xE2\x9A\xA0 SELECT error (webhook.php):\n" . $sql . "\n---\n" . $e->getMessage());
+        sendMessage($chat_id, "\xE2\x9A\xA0 SELECT error (global_functions.php):\n" . $sql . "\n---\n" . $e->getMessage());
         exit;
     }
 }
