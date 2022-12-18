@@ -1,4 +1,4 @@
-NAME = crypto_monitor_bot
+NAME = telegram_crypto_monitor_bot
 
 .PHONY: build
 build:
