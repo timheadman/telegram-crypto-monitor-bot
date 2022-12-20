@@ -1,5 +1,5 @@
-NAME = telegram_crypto_monitor_bot
-RUNNER_NAME = run_$(NAME)_container.sh
+NAME = telegram-crypto-monitor-bot
+RUNNER_NAME = run-$(NAME)-container.sh
 
 .PHONY: build
 build:
