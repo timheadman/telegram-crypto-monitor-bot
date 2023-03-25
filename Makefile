@@ -1,7 +1,6 @@
 NAME = telegram-crypto-monitor-bot
-RUN_SCRIPT_NAME = run-$(NAME)-container.sh
+EXEC = docker run --restart=on-failure --detach --name $(NAME) $(NAME) 
 SERVER = tim@10.11.12.252
-EXEC = docker run --restart=on-failure --detach --name telegram-crypto-monitor-bot telegram-crypto-monitor-bot
 
 .PHONY: clean
 #Останавливаем контейнер и удаляем образ.
