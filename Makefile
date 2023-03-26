@@ -5,8 +5,8 @@ SERVER = tim@10.11.12.252
 .PHONY: clean
 #Останавливаем контейнер и удаляем образ.
 clean:
-	docker container stop $(NAME)
-	docker container remove $(NAME)
+	docker container stop $(NAME); \
+	docker container remove $(NAME); \
 	docker image remove $(NAME)
 
 .PHONY: build
