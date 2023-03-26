@@ -1,5 +1,5 @@
 NAME = telegram-crypto-monitor-bot
-EXEC = docker run --restart=on-failure --detach --name $(NAME) $(NAME) 
+EXEC = docker run --restart=always --detach --name $(NAME) $(NAME) 
 SERVER = tim@10.11.12.252
 
 .PHONY: clean
